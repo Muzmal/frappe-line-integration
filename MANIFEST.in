@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include zav_line_integration *.css
+recursive-include zav_line_integration *.csv
+recursive-include zav_line_integration *.html
+recursive-include zav_line_integration *.ico
+recursive-include zav_line_integration *.js
+recursive-include zav_line_integration *.json
+recursive-include zav_line_integration *.md
+recursive-include zav_line_integration *.png
+recursive-include zav_line_integration *.py
+recursive-include zav_line_integration *.svg
+recursive-include zav_line_integration *.txt
+recursive-exclude zav_line_integration *.pyc
