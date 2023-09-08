@@ -1,0 +1,78 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-09-08 12:04:56.173644",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "variant_id",
+  "variant_barcode",
+  "variant_sku",
+  "variant_price",
+  "variant_discounted_price",
+  "variant_weight",
+  "variant_options",
+  "variant_onhandnumber",
+  "variant_available_number"
+ ],
+ "fields": [
+  {
+   "fieldname": "variant_id",
+   "fieldtype": "Data",
+   "label": "Variant Id"
+  },
+  {
+   "fieldname": "variant_barcode",
+   "fieldtype": "Data",
+   "label": "Variant Barcode"
+  },
+  {
+   "fieldname": "variant_sku",
+   "fieldtype": "Data",
+   "label": "Variant SKU"
+  },
+  {
+   "fieldname": "variant_price",
+   "fieldtype": "Data",
+   "label": "Variant Price"
+  },
+  {
+   "fieldname": "variant_discounted_price",
+   "fieldtype": "Data",
+   "label": "Variant Discounted Price"
+  },
+  {
+   "fieldname": "variant_weight",
+   "fieldtype": "Data",
+   "label": "Variant Weight"
+  },
+  {
+   "fieldname": "variant_options",
+   "fieldtype": "Data",
+   "label": "Variant Options"
+  },
+  {
+   "fieldname": "variant_onhandnumber",
+   "fieldtype": "Data",
+   "label": "Variant onHandNumber"
+  },
+  {
+   "fieldname": "variant_available_number",
+   "fieldtype": "Data",
+   "label": "Variant Available Number"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-09-08 12:04:56.173644",
+ "modified_by": "Administrator",
+ "module": "Zaviago Line",
+ "name": "Line Item Variants",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
