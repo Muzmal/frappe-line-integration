@@ -13,7 +13,7 @@ import binascii
 from frappe.utils import cstr, flt, cint, get_files_path
 from PIL import Image
 import requests
-from zav_line_integration.zaviago_line.doctype.integrate_line_shop.integrate_line_shop import handleLineRequests
+from zav_line_integration.zaviago_line.doctype.line_shop_with_erpnext.line_shop_with_erpnext import handleLineRequests
 import base64
 
 

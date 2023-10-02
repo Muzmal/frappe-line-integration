@@ -1,0 +1,62 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-09-28 10:38:29.690250",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "line_api_key",
+  "enable_line_integration",
+  "fetch_orders",
+  "fetch_products"
+ ],
+ "fields": [
+  {
+   "fieldname": "line_api_key",
+   "fieldtype": "Password",
+   "in_list_view": 1,
+   "label": "Line API Key",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "enable_line_integration",
+   "fieldtype": "Check",
+   "label": "Enable Line Integration"
+  },
+  {
+   "fieldname": "fetch_orders",
+   "fieldtype": "Button",
+   "label": "Fetch Orders"
+  },
+  {
+   "fieldname": "fetch_products",
+   "fieldtype": "Button",
+   "label": "Fetch Products"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2023-09-28 11:18:26.301030",
+ "modified_by": "Administrator",
+ "module": "Zaviago Line",
+ "name": "Line Shop with ERPnext",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
