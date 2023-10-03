@@ -307,111 +307,136 @@ class handleLineRequests:
 		
 		if( ifExist == None ):
 			new_product = frappe.new_doc('LINE MY SHOP Item')
-			item_group = "Line Products"
-			item_group = frappe.db.exists("Item Group", item_group )
-			if( item_group == None ):
-				print( f"  \n \n \n \n  Creating item group   \n \n \n \n ")
-				new_item_group = frappe.new_doc('Item Group')
-				new_item_group.item_group_name="Line Products"
-				new_item_group.parent_item_group="All Item Groups"
-				new_item_group.insert(
-					ignore_permissions=True, # ignore write permissions during insert
-					ignore_links=True, # ignore Link validation in the document
-					ignore_if_duplicate=True, # dont insert if DuplicateEntryError is thrown
-					ignore_mandatory=True # insert even if mandatory fields are not set
-				)
-			new_product.item_group="Line Products"
-			new_product.line_my_shop_item_name=p['name']
-			k = 0
-			is_variable=False
-			profileImg=''
-			cat_local_display_name=''
-			if( 'category' in p ):
-				category_list = p['category']
-				cat_local_display_name =  category_list['nameEn']
-			new_product.category_name=cat_local_display_name
-			array_of_images=False
-			if( 'imageUrls' in p ):
-				images=p['imageUrls']
-				k=0
-				array_of_images=[]
-				for i in images:
-					if( k==0 ):
-						profileImg = images[0]
-					array_of_images.append(i)
-					k=k+1
-			if( array_of_images ):
-				del array_of_images[0]
-				for addImg in array_of_images: 	
-					print(f" image to add is {addImg} ")
-					new_product.append('line_additional_images',{
-						"additional_image":addImg,
-						"image_preview":addImg
-					})
-			description=''
-			if( 'description' in p ):
-				description = p['description']
-			brand_name=''
-			if( 'brand' in p ):
-				brand_name=p['brand']
-			seller_sku='...'
-			price=''
-			l=0
+			print(f"adding product {p['name']}")
 			item_code=''
 			if( 'code' in p ):
 				item_code=p['code']
-			is_variable=False
-			if( p['hasOnlyDefaultVariant'] == False ):
-				is_variable=True
-			new_product.has_variants=is_variable
-			new_product.item_name=p['name']
-			new_product.document_name_series=p['name']
-			# new_product.erpnext_item_name=tiktokProduct['product_name']
-			new_product.line_my_shop_item_id=p['id']
-			new_product.brand=brand_name
-			new_product.item_code_sku=item_code
-			new_product.image=profileImg
-			if( is_variable == False ):
-				defaultVariation=p['variants']
-				new_product.stock_piece=defaultVariation[0]['onHandNumber']
-				new_product.full_price=defaultVariation[0]['price']
-				new_product.sale_price=float(defaultVariation[0]['price']) - float(p['instantDiscount'])
-			if( is_variable == True ):
-				for variant in p['variants']:
-					option_str = ''
-					for option in variant['options']:
-						option_str = option_str + str( option['name'] ) + " : " +  str( option['value'] ) + " , "
-					
-					option_str = option_str[:len(option_str) - 2]
-					new_product.append('all_variants',{
-						"variant_id":variant['id'],
-						"variant_barcode":variant['barcode'],
-						"variant_sku":variant['sku'],
-						"variant_price":variant['price'],
-						"variant_discounted_price":variant['discountedPrice'],
-						"variant_weight":variant['weight'],
-						"variant_options":option_str,
-						"variant_onhandnumber":variant['onHandNumber'],
-						"variant_available_number":variant['availableNumber'],
-					})
+				new_product.item_code_sku=item_code
+		else:
+			#new_product = frappe.get_doc("LINE MY SHOP Item", {"line_my_shop_item_id": p['id']})
+			new_product = frappe.get_last_doc('LINE MY SHOP Item', filters={"line_my_shop_item_id": p['id']})
+			print(f"updating product {new_product.name}")
+		
+		item_group = "Line Products"
+		item_group = frappe.db.exists("Item Group", item_group )
+		if( item_group == None ):
+			print( f"  \n \n \n \n  Creating item group   \n \n \n \n ")
+			new_item_group = frappe.new_doc('Item Group')
+			new_item_group.item_group_name="Line Products"
+			new_item_group.parent_item_group="All Item Groups"
+			new_item_group.insert(
+				ignore_permissions=True, # ignore write permissions during insert
+				ignore_links=True, # ignore Link validation in the document
+				ignore_if_duplicate=True, # dont insert if DuplicateEntryError is thrown
+				ignore_mandatory=True # insert even if mandatory fields are not set
+			)
+		new_product.item_group="Line Products"
+		new_product.line_my_shop_item_name=p['name']
+		k = 0
+		is_variable=False
+		profileImg=''
+		cat_local_display_name=''
+		if( 'category' in p ):
+			category_list = p['category']
+			cat_local_display_name =  category_list['nameEn']
+		new_product.category_name=cat_local_display_name
+		array_of_images=False
+		if( 'imageUrls' in p ):
+			images=p['imageUrls']
+			k=0
+			array_of_images=[]
+			for i in images:
+				if( k==0 ):
+					profileImg = images[0]
+				array_of_images.append(i)
+				k=k+1
+		if( array_of_images ):
+			del array_of_images[0]
+			for addImg in array_of_images: 	
+				print(f" image to add is {addImg} ")
+				new_product.append('line_additional_images',{
+					"additional_image":addImg,
+					"image_preview":addImg
+				})
+		description=''
+		if( 'description' in p ):
+			description = p['description']
+		brand_name=''
+		if( 'brand' in p ):
+			brand_name=p['brand']
+		seller_sku='...'
+		price=''
+		l=0
+		
+		is_variable=False
+		if( p['hasOnlyDefaultVariant'] == False ):
+			is_variable=True
+		new_product.has_variants=is_variable
+		new_product.item_name=p['name']
+		new_product.document_name_series=p['name']
+		# new_product.erpnext_item_name=tiktokProduct['product_name']
+		new_product.line_my_shop_item_id=p['id']
+		new_product.brand=brand_name
+		
+		new_product.image=profileImg
+		if( 'weight' in p ):
+			new_product.item_weight=p['weight']
+		if( is_variable == False ):
+			defaultVariation=p['variants']
+			new_product.stock_piece=defaultVariation[0]['onHandNumber']
+			new_product.full_price=defaultVariation[0]['price']
+			new_product.sale_price=float(defaultVariation[0]['price']) - float(p['instantDiscount'])
+		if( is_variable == True ):
+			for variant in p['variants']:
+				option_str = ''
+				for option in variant['options']:
+					option_str = option_str + str( option['name'] ) + " : " +  str( option['value'] ) + " , "
+				
+				option_str = option_str[:len(option_str) - 2]
+				new_product.append('all_variants',{
+					"variant_id":variant['id'],
+					"variant_barcode":variant['barcode'],
+					"variant_sku":variant['sku'],
+					"variant_price":variant['price'],
+					"variant_discounted_price":variant['discountedPrice'],
+					"variant_weight":variant['weight'],
+					"variant_options":option_str,
+					"variant_onhandnumber":variant['onHandNumber'],
+					"variant_available_number":variant['availableNumber'],
+				})
+		if( p['isDisplay'] == True ):
+			new_product.active_product=True
+		else:
+			new_product.active_product=False
 
-			new_product.product_description = description
+		new_product.product_description = description
+
+
+		if( ifExist == None ):
 			new_product.insert(
 			ignore_permissions=True, # ignore write permissions during insert
 			ignore_links=True, # ignore Link validation in the document
 			ignore_if_duplicate=True, # dont insert if DuplicateEntryError is thrown
 			ignore_mandatory=True # insert even if mandatory fields are not set
 			)
-			if( 'sku' not in p or p['sku'] =='' ):
-					p['sku']="no-sku-"+str(p['id'])
-			Item__ = frappe.db.exists("Item", str(p['sku']))
-			if( Item__ == None ):
-				self.create_product(p['name'],p['sku'],"By-product","no")
-				print("inserted")
-				
+		
+		else:
+
+			print(new_product.item_code_sku)
+			new_product.save(
+					ignore_permissions=True, # ignore write permissions during insert
+			)
+		
+		if( 'code' not in p or p['code'] =='' ):
+			p['code']="no-sku-"+str(p['code'])
+		Item__ = frappe.db.exists("Item", str(p['code']))
+		if( Item__ == None ):
+			self.create_product(p['name'],p['code'],"By-product","no")
+			print("inserted")
+		
 			
-			frappe.db.commit()
-			
+		
+		frappe.db.commit()
 		return
 
 @frappe.whitelist( )
@@ -421,7 +446,7 @@ def ajax_init_fetch_products():
 		line_oa_shop = handleLineRequests()
 		line_oa_shop.fetch_products( id=None )
 		count= 1 
-		url = frappe.utils.get_url()+"app/sales-order"
+		url = frappe.utils.get_url()+"/app/sales-order"
 		print(f"\n\n url is {url} ")
 		# webbrowser.open( url,new=0 )
 	else:

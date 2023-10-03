@@ -46,7 +46,8 @@
   "stock_piece",
   "column_break_w7dn6",
   "product_description",
-  "line_my_shop_item_id"
+  "line_my_shop_item_id",
+  "item_weight"
  ],
  "fields": [
   {
@@ -65,17 +66,10 @@
    "fieldtype": "Section Break"
   },
   {
-   "fieldname": "item_code_sku",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Item Code (SKU)",
-   "options": "Item",
-   "reqd": 1
-  },
-  {
    "fieldname": "item_name",
-   "fieldtype": "Data",
-   "label": "Item Name"
+   "fieldtype": "Link",
+   "label": "Item Name",
+   "options": "Item"
   },
   {
    "fieldname": "item_group",
@@ -251,15 +245,27 @@
    "label": "LINE MY SHOP Item ID"
   },
   {
+   "depends_on": "eval:(doc.has_variants)",
    "fieldname": "all_variants",
    "fieldtype": "Table",
    "label": "All Variants",
    "options": "Line Item Variants"
+  },
+  {
+   "fieldname": "item_weight",
+   "fieldtype": "Data",
+   "label": "Item Weight"
+  },
+  {
+   "fieldname": "item_code_sku",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Item Code (SKU)"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-09-08 12:12:17.611735",
+ "modified": "2023-10-03 14:52:32.471380",
  "modified_by": "Administrator",
  "module": "Zaviago Line",
  "name": "LINE MY SHOP Item",
