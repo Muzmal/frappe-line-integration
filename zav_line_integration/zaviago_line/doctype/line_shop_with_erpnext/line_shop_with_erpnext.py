@@ -58,7 +58,7 @@ class handleLineRequests:
 		new_order.transaction_date=date
 		new_order.custom_line_order_id=o['orderNumber']
 		 
-		# new_order.marketplace_name="Tiktok"
+ 
 		new_order.marketplace="Line"
 		new_order.marketplace_order_number=o['orderNumber']
 
@@ -138,6 +138,7 @@ class handleLineRequests:
 		new_order.submit()
 		frappe.db.commit()
 		# frappe.msgprint("Created order")
+		self.save_sales_invoice( o )
 		self.added_orders=self.added_orders+1
 		return 
 	
@@ -237,10 +238,7 @@ class handleLineRequests:
 			"country": country,
 			"county": order_address["subDistrict"] or "Not provided",
 			"doctype": "Address",
-			
 			"phone": order_address["phoneNumber"],
-			 
-			 
 			"links": [{"link_doctype": "Customer", "link_name": customer_name}],
 			"is_primary_address": int(address_type == "Billing"),
 			"is_shipping_address": int(also_shipping or address_type == "Shipping"),
@@ -315,7 +313,7 @@ class handleLineRequests:
 		else:
 			#new_product = frappe.get_doc("LINE MY SHOP Item", {"line_my_shop_item_id": p['id']})
 			new_product = frappe.get_last_doc('LINE MY SHOP Item', filters={"line_my_shop_item_id": p['id']})
-			print(f"updating product {new_product.name}")
+			print(f"updating product {p['name']}")
 		
 		item_group = "Line Products"
 		item_group = frappe.db.exists("Item Group", item_group )
@@ -379,20 +377,23 @@ class handleLineRequests:
 		new_product.brand=brand_name
 		
 		new_product.image=profileImg
-		if( 'weight' in p ):
-			new_product.item_weight=p['weight']
+			
 		if( is_variable == False ):
 			defaultVariation=p['variants']
 			new_product.stock_piece=defaultVariation[0]['onHandNumber']
+			new_product.item_weight=defaultVariation[0]['weight']
 			new_product.full_price=defaultVariation[0]['price']
+			new_product.item_barcode=defaultVariation[0]['barcode']
 			new_product.sale_price=float(defaultVariation[0]['price']) - float(p['instantDiscount'])
 		if( is_variable == True ):
+			new_product.all_variants=[]
 			for variant in p['variants']:
 				option_str = ''
 				for option in variant['options']:
 					option_str = option_str + str( option['name'] ) + " : " +  str( option['value'] ) + " , "
 				
 				option_str = option_str[:len(option_str) - 2]
+				
 				new_product.append('all_variants',{
 					"variant_id":variant['id'],
 					"variant_barcode":variant['barcode'],
@@ -421,7 +422,6 @@ class handleLineRequests:
 			)
 		
 		else:
-
 			print(new_product.item_code_sku)
 			new_product.save(
 					ignore_permissions=True, # ignore write permissions during insert
@@ -438,6 +438,93 @@ class handleLineRequests:
 		
 		frappe.db.commit()
 		return
+	
+
+	def save_sales_invoice( self,o ):
+		
+		new_order = frappe.new_doc('Sales Invoice')
+		# new_order.price_list_currency=o['payment_info']['currency']
+		if( 'checkoutAt' in o ):
+			date = o['checkoutAt']
+			date = date[:10]
+		else:
+			date = today()
+		new_order.transaction_date=date
+		new_order.delivery_date=date
+		new_order.due_date=today()
+		new_order.customer=o['shippingAddress']['recipientName']
+		if( 'paymentMethod' in o and o['paymentMethod']=='COD' ):
+			new_order.custom_is_cod=True
+
+		
+
+		for product in o['orderItems']:
+			if( 'sku' not in product or product['sku'] =='' ):
+					product['sku']="no-sku-"+str(product['productId'])
+		
+			
+			item_code = product['sku']
+
+			if( product['discountedPrice'] is not None ):
+				product['discountedPrice'] =  float( product['price'] )-float( product['discountedPrice'] )
+			else:
+				product['discountedPrice'] = int( 0 )
+			new_order.append("items",{
+				"item_code": product['sku'],
+				"item_name": product['name'],
+				"uom": "Kg",
+				"qty": product['quantity'],
+				"price_list_rate": product['price'],
+				"rate": product['price'],
+				"amount": product['price'],
+				"stock_uom_rate": product['price'],
+				"net_rate": product['price']-product['discountedPrice'],
+				"net_amount": product['price']-product['discountedPrice'],
+				"billed_amt": product['price']-product['discountedPrice'],
+				"valuation_rate":  product['price']-product['discountedPrice'],
+				})	
+		
+
+		
+
+		if( 'shipmentDetail' in o ):
+			shipmentDetail = o['shipmentDetail']
+			shipping = frappe.db.exists("Item", str('item_shipping_cost'))
+			if( shipping == None ):	
+				self.create_product(shipmentDetail['shipmentCompanyNameEn'],'it-is-overridden',"By-product","yes")
+			shipping_provider=shipmentDetail['shipmentCompanyNameEn']
+			new_order.custom_shipping=shipmentDetail['shipmentCompanyNameEn']
+			shipping_fee=o['shipmentPrice']
+			print(f" Shipping address name is {o['shippingAddress']['recipientName']}")
+			new_order.shipping_address_name=o['shippingAddress']['recipientName']+"-Billing"
+			new_order.append("items",{
+			"item_code": 'item_shipping_cost',
+			"item_name": shipping_provider,
+			"uom": "Kg",
+			"qty": "1",
+			"price_list_rate": shipping_fee,
+			"rate": shipping_fee,
+			"amount": shipping_fee,
+			"stock_uom_rate": shipping_fee,
+			"net_rate": shipping_fee,
+			"net_amount": shipping_fee,
+			"billed_amt": shipping_fee,
+			"valuation_rate": shipping_fee,
+			})	
+		print("about to save sales invoice")
+		response = new_order.insert(
+				ignore_permissions=True, # ignore write permissions during insert
+				ignore_links=True, # ignore Link validation in the document
+				ignore_if_duplicate=True, # dont insert if DuplicateEntryError is thrown
+				ignore_mandatory=True # insert even if mandatory fields are not set
+			)
+		print("inserted  sales invoice")
+		new_order.submit()
+		print("submitted  sales invoice")
+		frappe.db.commit()
+		print("committed  sales invoice")
+		return
+	
 
 @frappe.whitelist( )
 def ajax_init_fetch_products():

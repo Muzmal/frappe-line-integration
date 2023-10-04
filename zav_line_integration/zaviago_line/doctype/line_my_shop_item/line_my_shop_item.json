@@ -23,7 +23,6 @@
   "image_and_video_section",
   "image",
   "line_additional_images",
-  "line_item_video",
   "item_status_section",
   "active_product",
   "gift_status_section",
@@ -44,6 +43,7 @@
   "full_price",
   "sale_price",
   "stock_piece",
+  "item_barcode",
   "column_break_w7dn6",
   "product_description",
   "line_my_shop_item_id",
@@ -67,9 +67,8 @@
   },
   {
    "fieldname": "item_name",
-   "fieldtype": "Link",
-   "label": "Item Name",
-   "options": "Item"
+   "fieldtype": "Data",
+   "label": "Item Name"
   },
   {
    "fieldname": "item_group",
@@ -122,11 +121,6 @@
    "fieldname": "line_additional_images",
    "fieldtype": "Table",
    "options": "Line Item Images"
-  },
-  {
-   "fieldname": "line_item_video",
-   "fieldtype": "Attach",
-   "label": "Video"
   },
   {
    "fieldname": "item_status_section",
@@ -258,14 +252,20 @@
   },
   {
    "fieldname": "item_code_sku",
-   "fieldtype": "Data",
+   "fieldtype": "Link",
    "in_list_view": 1,
-   "label": "Item Code (SKU)"
+   "label": "Item Code (SKU)",
+   "options": "Item"
+  },
+  {
+   "fieldname": "item_barcode",
+   "fieldtype": "Data",
+   "label": "Item Barcode"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-10-03 14:52:32.471380",
+ "modified": "2023-10-04 10:43:21.733850",
  "modified_by": "Administrator",
  "module": "Zaviago Line",
  "name": "LINE MY SHOP Item",

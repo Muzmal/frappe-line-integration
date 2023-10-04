@@ -215,3 +215,4 @@ app_license = "MIT"
 # auth_hooks = [
 #	"zav_line_integration.auth.validate"
 # ]
+fixtures = ["Custom Field"]
