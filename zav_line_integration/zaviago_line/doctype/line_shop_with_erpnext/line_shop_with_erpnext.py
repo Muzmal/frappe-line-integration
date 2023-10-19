@@ -42,7 +42,8 @@ class handleLineRequests:
 		customer_flag = frappe.db.exists("Customer", o['shippingAddress']['recipientName'] )
 		if( customer_flag ==None ):
 			self.create_customer( o['shippingAddress'],o['shippingAddress']['recipientName'] )
-		
+		else :
+			self.update_address( o['shippingAddress'],o['shippingAddress']['recipientName'] )
 		new_order.title=o['shippingAddress']['recipientName']
 		new_order.customer=o['shippingAddress']['recipientName']
 		new_order.order_type="Sales"
@@ -187,7 +188,41 @@ class handleLineRequests:
 			)
 		frappe.db.commit()
 		return
+	def update_address( self,order_address,customer_name ):
+		country = zav_country_map.get(order_address["country"])
+		address_type = "Billing"
+		also_shipping=False
+		address_doc = frappe.db.exists("Address", customer_name+"-"+address_type)
+		if( address_doc == None ):
+			frappe.get_doc(
+			{
+				"address_line1": order_address["address"] or "Not provided",
+				"address_line2": '',
+				"address_type": address_type,
+				"city": order_address["district"],
+				"country": country,
+				"county": order_address["subDistrict"] or "Not provided",
+				"doctype": "Address",
+				"phone": order_address["phoneNumber"],
+				"links": [{"link_doctype": "Customer", "link_name": customer_name}],
+				"is_primary_address": int(address_type == "Billing"),
+				"is_shipping_address": int(also_shipping or address_type == "Shipping"),
+			}
+			).save( ignore_permissions=True )
+		else :
+			address_doc=frappe.get_doc( "Address", customer_name+"-"+address_type )
+			address_doc.address_line1=order_address["address"] or "Not provided"
+			address_doc.address_type=address_type
+			address_doc.city=order_address["district"],
+			address_doc.country=country
+			address_doc.county=order_address["subDistrict"] or "Not provided",
+			address_doc.phone=order_address["phoneNumber"],
+			address_doc.is_primary_address=int(address_type == "Billing"),
+			address_doc.is_shipping_address=int(also_shipping or address_type == "Shipping"),
 
+
+			address_doc.save( ignore_permissions=True )
+		return
 	def create_customer(self,order_address,customer_name):
 		customer_group = frappe.db.exists("Customer Group", "Line Customer")
 		if( customer_group == None ):
