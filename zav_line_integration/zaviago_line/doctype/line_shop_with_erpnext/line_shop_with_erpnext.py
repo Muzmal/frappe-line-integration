@@ -189,10 +189,23 @@ class handleLineRequests:
 		frappe.db.commit()
 		return
 	def update_address( self,order_address,customer_name ):
+		customer_name=customer_name.strip()
 		country = zav_country_map.get(order_address["country"])
 		address_type = "Billing"
 		also_shipping=False
 		address_doc = frappe.db.exists("Address", customer_name+"-"+address_type)
+		if( address_doc is not None ):
+			address_doc=frappe.get_doc( "Address", customer_name+"-"+address_type )
+			address_doc.address_line1=order_address["address"] or "Not provided"
+			address_doc.address_type=address_type
+			address_doc.city=order_address["district"],
+			address_doc.country=country
+			address_doc.county=order_address["subDistrict"] or "Not provided",
+			address_doc.phone=order_address["phoneNumber"],
+			address_doc.is_primary_address=int(address_type == "Billing"),
+			address_doc.is_shipping_address=int(also_shipping or address_type == "Shipping"),
+			address_doc.save( ignore_permissions=True )
+			frappe.db.commit()
 		if( address_doc == None ):
 			frappe.get_doc(
 			{
@@ -208,20 +221,10 @@ class handleLineRequests:
 				"is_primary_address": int(address_type == "Billing"),
 				"is_shipping_address": int(also_shipping or address_type == "Shipping"),
 			}
-			).save( ignore_permissions=True )
-		else :
-			address_doc=frappe.get_doc( "Address", customer_name+"-"+address_type )
-			address_doc.address_line1=order_address["address"] or "Not provided"
-			address_doc.address_type=address_type
-			address_doc.city=order_address["district"],
-			address_doc.country=country
-			address_doc.county=order_address["subDistrict"] or "Not provided",
-			address_doc.phone=order_address["phoneNumber"],
-			address_doc.is_primary_address=int(address_type == "Billing"),
-			address_doc.is_shipping_address=int(also_shipping or address_type == "Shipping"),
+			).insert(ignore_mandatory=True)
+			frappe.db.commit()
 
-
-			address_doc.save( ignore_permissions=True )
+			
 		return
 	def create_customer(self,order_address,customer_name):
 		customer_group = frappe.db.exists("Customer Group", "Line Customer")
